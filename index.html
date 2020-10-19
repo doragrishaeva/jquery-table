@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&display=swap" rel="stylesheet">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+        
+        <title>JQuery Table</title>
+  </head>
+  <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <input id="search-product" class="col-lg-4 col-md-4 col-4 custom-input" type="text" placeholder="Enter product name..." value="">
+                <button id="search-button" class="col-lg-2 col-md-4 col-4 custom-button" type="submit">search</button>
+                <button id="add-new-button" class="col-lg-2 col-md-4 col-4 custom-button" type="submit">add new</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>name</th>
+                            <th>price</th>
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="product-modal-box" class="modal-box product-modal-box">
+        <div class="product-modal-box__content modal-box__content">
+            <form id="add-product-form" class="add-product-form m-3">
+                <h4 class="modal-title">product name</h4>
+                <div class="input-group d-flex flex-column mb-3">
+                    <label class="ml-3">name:</label>
+                    <div class="col-9">
+                        <input id="name" type="text" class="input custom-input-2" placeholder="Some product name" aria-label="name" name="name">
+                    </div>
+                </div>
+                <div class="input-group d-flex flex-column mb-3">
+                    <label class="ml-3">supplier email:</label>
+                    <div class="col-9">
+                        <input id="email" type="text" class="input custom-input-2" placeholder="supplier@gmail.com" aria-label="email" name="email">
+                    </div>
+                </div>
+                <div class="input-group d-flex flex-column mb-3">
+                    <label class="ml-3">count:</label>
+                    <div class="col-5">
+                        <input id="count" type="text" class="input custom-input-2" placeholder="0" aria-label="count" name="count">
+                    </div>
+                </div>
+                <div class="input-group d-flex flex-column mb-3">
+                    <label class="ml-3">price:</label>
+                    <div class="col-5">
+                        <input id="price" type="text" class="input custom-input-2" placeholder="0" aria-label="price" name="price">
+                    </div>
+                </div>
+                <div class="modal-button__form">
+                    <button id="save" class="mr-3 custom-button custom-button-2" type="submit">save</button>
+                    <button id="save-changes" class="mr-3 custom-button custom-button-2" type="submit">SAVE CHANGES</button>
+                    <button id="cancel" class="custom-button custom-button-2" type="submit">CANCEL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="delete-modal-box" class="modal-box delete-modal-box">
+        <div class="delete-modal-box__content modal-box__content">
+            <form id="delete-product-form" class="delete-product-form">
+                <h4 class="modal-title text-center mt-3"><h4>Are you sure?</h4></h4>
+                <div class="modal-button__form mt-3 ml-3 d-flex">
+                    <input id="yes-delete" type="submit" class="btn btn-outline-secondary col-5 ml-3" value="Yes" />
+                    <input id="no-delete" type="submit" class="btn btn-outline-secondary col-5 ml-4" value="No" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
