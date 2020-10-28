@@ -1,203 +1,244 @@
 $(document).ready(() => {
-
-    $.get( "http://localhost:3000/products", function(res) {
-        renderTable(res);
-        deleteProduct(res);
-        showProduct(res);
-        editProduct(res);
-        filterProducts(res);
-        sortProducts(res);
-    });
-
-    //RENDER TABLE
-    //1.make table body empty
-    //2.append <tr> (with its data for each item) to table body 
-    const renderTable = (res) => {
-        $('#tableBody').empty();
-            let productList = [];
-            for(let i = 0; i < res.length; i++){   
-                productList.push(res[i]); 
-                $(`<tr><td data-id="${[i]}" data-name="${productList[i].name}"><p>${productList[i].name}</p></td><td><p>${productList[i].price}</p></td><td><button type="submit" id="edit-button" class="btn mr-3"><p>EDIT</p></button><button type="submit" id="delete-button" class="btn"><p>DELETE</p></button></td></tr>`)
-                .appendTo('#tableBody');
+    // RENDER TABLE
+    (function () {
+        $('#table-body').empty();
+        if (localStorage.length !== 0) {
+            for (let key in localStorage) {
+                if (typeof(localStorage[key]) === 'string') {
+                    let product = JSON.parse(localStorage.getItem(key));
+                    $(`<tr class="item-row item-row_active"><td data-name="${product.name}"><span class="product-name button yellow-button">${product.name}</span></td><td>${product.count}</td><td>${product.price}</td><td><button id="done-button" class="mr-3 done-button button yellow-button">DONE</button><button id="delete-button" class="delete-button button yellow-button">DELETE</button></td></tr>`)
+                    .appendTo('#table-body');
+                };
             };
-    };
+        };
+    })();
 
-    //ADD NEW PRODUCT
-    //1.show 'add-product' modal box
-    //2.if 'cancel' was clicked, modal box has to close
-    //3.if form was submitted, POST request has to send and modal box close
+    // SAVE OR CHANGE PRODUCT IN LOCAL STORAGE
+    function addDataToLocalStorage() {
+        let productName = $('#name').val();
+        let count = $('#count').val();
+        let price = $('#price').val();
+        let product = { name:  productName, count: +count, price: +price};
+        localStorage.setItem(productName, JSON.stringify(product));
+    };
+    
+    //SUBMIT FORM WITH NEW PRODUCT
     $('#add-new-button').on('click', () => {
         $('#add-product-form')[0].reset();
         $('#product-modal-box').addClass('modal-box_active');
         
-        //show only when edit product
+        //hide when we add new product
         $('#save-changes').hide();
-
         //show when we add new product
         $('#save').show();
-    })
+    });
 
     $('#cancel').on('click', (e) => {
         e.preventDefault();
         $('#product-modal-box').removeClass('modal-box_active');
     });
 
-    $('#save').on('click', function(data) {
-        $.ajax({
-            type: "POST",
-            url: "http://localhost:3000/products",
-            contentType: 'application/json',
-            data: JSON.stringify( { "name": $('#name').val(), "email": $('#email').val(), "count": $('#count').val(), "price": $('#price').val(), "delivery": $('#delivery').val() } ),
-            success: function() {
-                $('#product-modal-box').removeClass('modal-box_active');
-            }
-        });
-        return false;
-    });  
+    $('#save').on('click', function() {
+        sessionStorage.clear();
+        addDataToLocalStorage();
+    });
 
     //SHOW PRODUCT INFORMATION
-    //1.show modal-box with information about product
-    //2.send item name to local storage to identify current row, if we will be going to edit product information
-    const showProduct = (res) => {
-        $('#tableBody').on('click', '#edit-button', (e) => {
-            e.preventDefault();
-            $('#save-changes').show();
-            $('#save').hide();
-            $('#product-modal-box').addClass('modal-box_active');
+    $('#table-body').on('click', '.product-name', (e) => {
+        e.preventDefault();
+        $('#save-changes').show();
+        $('#save').hide();
+        $('#product-modal-box').addClass('modal-box_active');
            
-            for (var i=0; i < res.length; i++) {
-                if (e.target.parentNode.parentNode.parentNode.firstChild === $('#tableBody').children()[i].firstChild) {
-                    $('#name').val(res[i].name);
-                    $('#email').val(res[i].email);
-                    $('#count').val(res[i].count);
-                    $('#price').val(res[i].price);
-                    $('#delivery').val(res[i].delivery);
-                };
-            };
-
-            //send item name to local storage   
-            var itemName = $(e.target.parentNode.parentNode.parentNode.firstChild).attr('data-name');
-            localStorage.setItem('item-name', itemName);
-        });
-    };
+        let currentRow = e.currentTarget.closest('tr');
+        let currentName = $(currentRow).children()[0].firstChild.innerHTML;
+        $('#name').val(currentName);
+        $('#count').val($(currentRow).children()[1].innerHTML);
+        $('#price').val($(currentRow).children()[2].innerHTML);
+       
+        sessionStorage.clear();
+        sessionStorage.setItem('currentName', currentName);
+    });
     
     //EDIT PRODUCT
-    //1.compare item name from local storage (equal to name of product) with each name from JSON elements, when it's equal, PUT request updates data (from input values)
-    //2.if 'cancel' was clicked, modal box has to close (without updating data)
-    const editProduct = (res) => {
-        $('#save-changes').on('click', (e) => {
-            e.preventDefault();
-                for(var i = 0; i < res.length; i++){ 
-                    if (localStorage.getItem('item-name') == (res[i].name)) {
-                        $.ajax({
-                            type: "PUT",
-                            url: `http://localhost:3000/products/${res[i].id}`,
-                            contentType: 'application/json',
-                            data: JSON.stringify( { "name": $('#name').val(), "email": $('#email').val(), "count": $('#count').val(), "price": $('#price').val(), "delivery": $('#delivery').val() } ),
-                            success: function() {
-                                $('#product-modal-box').removeClass('modal-box_active');
-                            }
-                        });
-                    };
-                };
-        });
+    $('#save-changes').on('click', () => {
+        let replacedItem = sessionStorage.getItem('currentName');
+        localStorage.removeItem(replacedItem);
+        addDataToLocalStorage();
+    });
 
-        $('#cancel').on('click', () => {
-            $('#product-modal-box').removeClass('modal-box_active');
-        });      
-    };
-
-    
     //DELETE PRODUCT
-    //1.show 'delete' modal box and save item name to local storage so we could identify current product
-    //2.if 'no' was clicked, modal box has to close
-    //3.if 'yes' was clicked, DELETE request removes data about current product from JSON
-    const deleteProduct = (res) => {
-        $('#tableBody').on('click', '#delete-button', (e) => {
-            e.preventDefault();
-            $('#delete-modal-box').addClass('modal-box_active');
-            var itemName = $(e.target.parentNode.parentNode.parentNode.firstChild).attr('data-name');
-            localStorage.setItem('item-name', itemName);
-        });
+    $('#table-body').on('click', '#delete-button', (e) => {
+        e.preventDefault();
+        $('#delete-modal-box').addClass('modal-box_active');
+        let currentRow = e.target.closest('tr');
+        let currentName = $(currentRow).children()[0].firstChild.innerHTML;
+        $('.current-item').remove();
+        $('.delete-title').after(`<p style="text-align:center" class="current-item">Do you want to delete ${currentName}?</p>`);      
+    });
 
-        $('#yes-delete').on('click', (e) => {
-            e.preventDefault();
-                for(var i = 0; i < res.length; i++){ 
-                    if (localStorage.getItem('item-name') == (res[i].name)) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: `http://localhost:3000/products/${res[i].id}`,
-                            contentType: 'application/json',
-                            data: JSON.stringify( { "name": $('#name').val(), "email": $('#email').val(), "count": $('#count').val(), "price": $('#price').val(), "delivery": $('#delivery').val() } ),
-                            success: function() {
-                                $('#delete-modal-box').removeClass('modal-box_active')
-                            }
-                        });
-                    };
+    $('#yes-delete').on('click', (e) => {
+        let currentStr = $(e.target).closest('#delete-product-form').children()[1].innerHTML.slice(22, -1);
+        for (let key in localStorage) {
+            if (typeof localStorage[key] === 'string') {
+                let product = JSON.parse(localStorage.getItem(key));
+                if (currentStr === product.name) {
+                    localStorage.removeItem(key);
                 };
-        });
+            };
+        };
+        $('#delete-modal-box').removeClass('modal-box_active');
+    });
 
-        $('#no-delete').on('click', (e) => {
-            e.preventDefault();
-            $('#delete-modal-box').removeClass('modal-box_active');
-        });
-    };
+    $('#no-delete').on('click', (e) => {
+        e.preventDefault();
+        $('#delete-modal-box').removeClass('modal-box_active');
+    });
 
     //FILTER PRODUCTS
-    //1.check each product name if it includes 'filter' input value
-    //2.show rows only included 'filter' input value
-    //3.if value is empty, filter resets
-    const filterProducts = (res) => {
-        $('#search-button').on('click', function(e) {
-            e.preventDefault();
-            renderTable(res);
-            var searchValue = $('#search-product').val().toLowerCase();
-            for (var i=0;i<res.length;i++) {
-                var $name = res[i].name;
-                if (!$name.toLowerCase().includes(searchValue)) {
-                    $('tr:contains('+$name+')').css('display','none');
-                };
-            };
-            if (searchValue.length < 1) {
-                renderTable(res)
+    $('#search-button').on('click', function(e) {
+        e.preventDefault();
+        let searchValue = $('#search-product').val().toUpperCase();
+
+        $('.item-row').hide()
+        Array.from($('.item-row')).forEach(item => {
+            if ($(item).children()[0].innerText.toUpperCase().includes(searchValue)) {
+                $(item).show();
             };
         });
-    };
-
+    });
+    
     //SORTING PRODUCTS
-    //1.sort products by their names
-    const sortProducts = (res) => {
-        $('.button-sort_from-low').on('click', function(e) {
-            $('.button-sort').removeClass('button-sort_active');
-            $(e.currentTarget).addClass('button-sort_active');
-            res.sort(function (a, b) {
-                if (a.name > b.name) {
-                    return 1;
-                }
-                if (a.name < b.name) {
-                    return -1;
-                }
-                return 0;
-            });
-            
-            renderTable(res);
-        });
+    $('.sort-button').on('click', function(e) {
+        // change arrow
+        if ($(e.currentTarget).hasClass('sort-button_active')) {
+            var currentArrow = $(e.currentTarget).siblings();
+            $(currentArrow).hasClass('fa-arrow-alt-circle-down') ? (
+                $(currentArrow).removeClass('fa-arrow-alt-circle-down'),
+                $(currentArrow).addClass('fa-arrow-alt-circle-up')
+            ) : (
+                $(currentArrow).removeClass('fa-arrow-alt-circle-up'),
+                $(currentArrow).addClass('fa-arrow-alt-circle-down')
+            )
+        }
+        else {
+            $('i').remove();
+            arrOfSortButtons = Array.from($('.sort-button'));
+            arrOfSortButtons.forEach(item => {
+                $(item).removeClass('sort-button_active');
+            })
+            $(e.currentTarget).after('<i class="fas fa-arrow-alt-circle-down"></i>');
+            $(e.currentTarget).addClass('sort-button_active');
+        }
 
-        $('.button-sort_from-high').on('click', function(e) {
-            $('.button-sort').siblings().removeClass('button-sort_active');
-            $(e.currentTarget).addClass('button-sort_active');
-            res.sort(function (a, b) {
-                if (a.name > b.name) {
-                    return -1;
-                };
-                if (a.name < b.name) {
-                    return 1;
-                };
-                return 0;
-            });
-            
-            renderTable(res);
-        });
-    };
+        //make array from items in local storage
+        let arrOfItems = [];
+        for (let key in localStorage) {
+            if (typeof(localStorage[key]) === 'string') {
+                let currentItem = JSON.parse(localStorage.getItem(key));
+                arrOfItems.push(currentItem);
+            };
+        };
+
+        //bubble sorting
+        function bubbleSorting(sortParam, orderBy) {
+            var swapped;
+            do {
+                swapped = false;
+                if (orderBy === 'DESC') {
+                    for (let i=0; i<arrOfItems.length-1;i++) {
+                        if (arrOfItems[i][sortParam] < arrOfItems[i+1][sortParam]) {
+                            var temp = arrOfItems[i];
+                            arrOfItems[i] = arrOfItems[i+1];
+                            arrOfItems[i+1] = temp;
+                            swapped = true;
+                        }
+                    }
+                }
+                if (orderBy === 'ASC') {
+                    for (let i=0; i<arrOfItems.length-1;i++) {
+                        if (arrOfItems[i][sortParam] > arrOfItems[i+1][sortParam]) {
+                            var temp = arrOfItems[i];
+                            arrOfItems[i] = arrOfItems[i+1];
+                            arrOfItems[i+1] = temp;
+                            swapped = true;
+                        }
+                    }
+                }         
+            } while (swapped)
+        };
+
+        //show sorted table
+        function showSortTable(sortParam, num) {
+            let arrOfRows = Array.from($('.item-row'));
+            $('#table-body').empty();
+            for (let i=0;i<arrOfItems.length;i++) {
+                arrOfRows.forEach(item => {
+                    if (arrOfItems[i][sortParam] == $(item).children()[num].innerText) {
+                        $(item).appendTo('#table-body');
+                    }
+                });
+            }; 
+        };
+
+        if (e.target.id === 'sort-by-name') {
+            if ($(currentArrow).hasClass('fa-arrow-alt-circle-up')) {
+                arrOfItems.sort(function (a, b) {
+                    if (a.name > b.name) {
+                        return -1;
+                    };
+                    if (a.name < b.name) {
+                        return 1;
+                    };
+                    return 0;
+                });
+            } else {
+                arrOfItems.sort(function (a, b) {
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    return 0;
+                });
+            }
+            showSortTable('name', 0)
+        } else if (e.target.id === 'sort-by-count') {
+            if ($(currentArrow).hasClass('fa-arrow-alt-circle-up')) {
+                bubbleSorting('count', 'DESC');
+                showSortTable('count', 1);
+            } else {
+                bubbleSorting('count', 'ASC');
+                showSortTable('count', 1);
+            }   
+        } else {
+            if ($(currentArrow).hasClass('fa-arrow-alt-circle-up')) {
+                bubbleSorting('price', 'DESC');
+                showSortTable('price', 2);
+            }
+            else {
+                bubbleSorting('price', 'ASC');
+                showSortTable('price', 2);
+            }
+        }                     
+    });
+    
+    $('#table-body').on('click', '.done-button', (e) => {
+        let currentRow = $(e.currentTarget).closest('tr');
+        if ($(currentRow).hasClass('item-row_active')) {
+            $(currentRow).children().css({
+                'opacity' : '0.2'
+            })
+            $(e.currentTarget).text('UNDONE');
+            $(currentRow).removeClass('item-row_active');
+        }
+        else {
+            $(currentRow).children().css({
+                'opacity' : '1'
+            })
+            $(e.currentTarget).text('DONE');
+            $(currentRow).addClass('item-row_active');
+        };
+    });
 });
-

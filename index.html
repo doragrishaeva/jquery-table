@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&display=swap" rel="stylesheet">
         <!-- Bootstrap CSS -->
+        <script src="https://kit.fontawesome.com/e58993165f.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link rel="stylesheet" href="style.css">
         
@@ -14,9 +15,9 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <input id="search-product" class="col-lg-4 col-md-4 col-4 custom-input" type="text" placeholder="Enter product name..." value="">
-                <button id="search-button" class="col-lg-2 col-md-4 col-4 custom-button" type="submit">search</button>
-                <button id="add-new-button" class="col-lg-2 col-md-4 col-4 custom-button" type="submit">add new</button>
+                <input id="search-product" class="col-lg-4 col-md-3 col-7 input green-input" type="text" placeholder="Enter product name..." value="">
+                <button id="search-button" class="col-lg-2 col-md-2 col-4 button green-button" type="submit">search</button>
+                <button id="add-new-button" class="col-lg-2 col-md-3 col-4 button green-button" type="submit">add new</button>
             </div>
         </div>
         <div class="row">
@@ -24,8 +25,9 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>name</th>
-                            <th>price</th>
+                            <th><span type="submit" id="sort-by-name" class="sort-button">name&nbsp;&nbsp;&nbsp;</span></th>
+                            <th><span id="sort-by-count" class="sort-button">count&nbsp;&nbsp;&nbsp;</span></th>
+                            <th><span id="sort-by-price" class="sort-button">price&nbsp;&nbsp;&nbsp;</span></th>
                             <th>actions</th>
                         </tr>
                     </thead>
@@ -41,31 +43,25 @@
                 <div class="input-group d-flex flex-column mb-3">
                     <label class="ml-3">name:</label>
                     <div class="col-9">
-                        <input id="name" type="text" class="input custom-input-2" placeholder="Some product name" aria-label="name" name="name">
-                    </div>
-                </div>
-                <div class="input-group d-flex flex-column mb-3">
-                    <label class="ml-3">supplier email:</label>
-                    <div class="col-9">
-                        <input id="email" type="text" class="input custom-input-2" placeholder="supplier@gmail.com" aria-label="email" name="email">
+                        <input id="name" type="text" class="input yellow-input" placeholder="Some product name" aria-label="name" name="name">
                     </div>
                 </div>
                 <div class="input-group d-flex flex-column mb-3">
                     <label class="ml-3">count:</label>
                     <div class="col-5">
-                        <input id="count" type="text" class="input custom-input-2" placeholder="0" aria-label="count" name="count">
+                        <input id="count" type="text" class="input yellow-input" placeholder="0" aria-label="count" name="count">
                     </div>
                 </div>
                 <div class="input-group d-flex flex-column mb-3">
                     <label class="ml-3">price:</label>
                     <div class="col-5">
-                        <input id="price" type="text" class="input custom-input-2" placeholder="0" aria-label="price" name="price">
+                        <input id="price" type="text" class="input yellow-input" placeholder="0" aria-label="price" name="price">
                     </div>
                 </div>
                 <div class="modal-button__form">
-                    <button id="save" class="mr-3 custom-button custom-button-2" type="submit">save</button>
-                    <button id="save-changes" class="mr-3 custom-button custom-button-2" type="submit">SAVE CHANGES</button>
-                    <button id="cancel" class="custom-button custom-button-2" type="submit">CANCEL</button>
+                    <button id="save" class="mr-3 button green-button">save</button>
+                    <button id="save-changes" class="mr-3 button green-button">SAVE CHANGES</button>
+                    <button id="cancel" class="button green-button">CANCEL</button>
                 </div>
             </form>
         </div>
@@ -73,10 +69,12 @@
     <div id="delete-modal-box" class="modal-box delete-modal-box">
         <div class="delete-modal-box__content modal-box__content">
             <form id="delete-product-form" class="delete-product-form">
-                <h4 class="modal-title text-center mt-3"><h4>Are you sure?</h4></h4>
-                <div class="modal-button__form mt-3 ml-3 d-flex">
-                    <input id="yes-delete" type="submit" class="btn btn-outline-secondary col-5 ml-3" value="Yes" />
-                    <input id="no-delete" type="submit" class="btn btn-outline-secondary col-5 ml-4" value="No" />
+                <h4 class="modal-title delete-title text-center mt-3">Are you sure?</h4>
+                <div class="modal-button__form delete-modal-button__form mt-3 d-flex row">
+                    <div class="col-12">
+                        <button id="yes-delete" type="submit" class="button green-button col-4 ml-2">yes</button>
+                        <button id="no-delete" class="button green-button col-4 mr-2">no</button>
+                    </div>
                 </div>
             </form>
         </div>
